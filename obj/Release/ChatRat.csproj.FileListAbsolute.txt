@@ -1,0 +1,14 @@
+C:\Programming\C#\ChatRat\ChatRat\bin\Release\ChatRat.exe.config
+C:\Programming\C#\ChatRat\ChatRat\bin\Release\ChatRat.exe
+C:\Programming\C#\ChatRat\ChatRat\bin\Release\ChatRat.pdb
+C:\Programming\C#\ChatRat\ChatRat\bin\Release\ZapNetwork.dll
+C:\Programming\C#\ChatRat\ChatRat\bin\Release\ZapNetwork.pdb
+C:\Programming\C#\ChatRat\ChatRat\obj\Release\ChatRat.csprojResolveAssemblyReference.cache
+C:\Programming\C#\ChatRat\ChatRat\obj\Release\ChatRat.FMain.resources
+C:\Programming\C#\ChatRat\ChatRat\obj\Release\ChatRat.Properties.Resources.resources
+C:\Programming\C#\ChatRat\ChatRat\obj\Release\ChatRat.UI.Panels.CCreateServer.resources
+C:\Programming\C#\ChatRat\ChatRat\obj\Release\ChatRat.UI.Panels.CJoinServer.resources
+C:\Programming\C#\ChatRat\ChatRat\obj\Release\ChatRat.UI.Panels.CMainPanel.resources
+C:\Programming\C#\ChatRat\ChatRat\obj\Release\ChatRat.csproj.GenerateResource.Cache
+C:\Programming\C#\ChatRat\ChatRat\obj\Release\ChatRat.exe
+C:\Programming\C#\ChatRat\ChatRat\obj\Release\ChatRat.pdb
