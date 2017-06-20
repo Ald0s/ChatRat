@@ -22,6 +22,9 @@ namespace ChatRat.UI.Panels {
         public delegate void ButtonClicked_Delegate(string name, object[] args);
         public event ButtonClicked_Delegate ButtonClicked;
 
+        public delegate void InputEntered_Delegate(string input, DateTime time);
+        public event InputEntered_Delegate InputEntered;
+
         private CToolStripController control;
 
         public CMainPanel(Panel _base, CToolStripController _control)
@@ -54,6 +57,16 @@ namespace ChatRat.UI.Panels {
             // We never want focus to belong to this.
 
             txtInput.Focus();
+        }
+
+        private void txtInput_KeyDown(object sender, KeyEventArgs e) {
+            if(e.KeyCode == Keys.Enter && !CUtility.IsBlank(txtInput.Text)) {
+                if (InputEntered != null)
+                    InputEntered(txtInput.Text, DateTime.Now);
+
+                txtInput.Clear();
+                e.Handled = true; // To stop that very annoying 'ding'
+            }
         }
     }
 }

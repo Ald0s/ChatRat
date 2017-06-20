@@ -66,6 +66,7 @@ namespace ChatRat {
             // Initialise all panels and register to UI parent.
             this.main = new CMainPanel(panMain, control);
             main.ButtonClicked += Main_ButtonClicked;
+            main.InputEntered += Main_InputEntered;
             primary.RegisterElement(main);
 
             this.createServer = new CCreateServer(panMain);
@@ -91,6 +92,20 @@ namespace ChatRat {
 
             // Select the default one.
             DefaultUI();
+        }
+
+        private void Main_InputEntered(string input, DateTime time) {
+            // Handling an 'enter' press on the primary text input.
+            // Send the input to both the server and client.
+
+            if(server != null && server.Listening) {
+                server.HandleInput(input, time);
+                return;
+            }
+
+            if(client != null && client.Connected) {
+                client.HandleInput(input, time);
+            }
         }
 
         private void FMain_FormClosing(object sender, FormClosingEventArgs e) {

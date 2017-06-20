@@ -25,23 +25,31 @@ namespace ChatRat.Elements {
 
         private string sRankName;
         private Color cRankColour;
+        private bool bLocked;
 
         // Default rank here.
         private const string defaultRankName = "User";
         private Color defaultRankColour = Color.Green; 
 
         // Can pass NULL in to both, rank will be defaulted.
-        public CRank(string _rank, Color _colour) {
+        public CRank(string _rank, Color _colour, bool _locked = false) {
             sRankName = (_rank == null) ? defaultRankName : _rank;
             cRankColour = (_colour == Color.Empty) ? defaultRankColour : _colour;
+            bLocked = _locked;
         }
 
         public void UpdateRank(string name, Color colour) {
+            if (bLocked)
+                return;
+
             this.sRankName = name;
             this.cRankColour = colour;
         }
 
         public void WipeRank() {
+            if (bLocked)
+                return;
+
             this.sRankName = defaultRankName;
             this.cRankColour = defaultRankColour;
         }

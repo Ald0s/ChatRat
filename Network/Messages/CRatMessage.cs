@@ -31,9 +31,30 @@ namespace ChatRat.Network.Messages {
             : base(_name) {
 
         }
+        
+        #region Room
+        public void WriteRoom(CRoom room) {
+            WriteString(room.Name);
+            WriteBool(room.Muted);
+        }
+        
+        public CRoom ReadRoom() {
+            return new CRoom(
+                ReadString(),
+                ReadBool());
+        }
+        #endregion
 
         #region User
+        // Server usage.
         public void WriteUser(CUser user) {
+            WriteInt(user.ClientID);
+            WriteString(user.Username);
+            WriteRank(user.Rank);
+        }
+        
+        // Client usage.
+        public void WriteUser(COfflineUser user) {
             WriteInt(user.ClientID);
             WriteString(user.Username);
             WriteRank(user.Rank);

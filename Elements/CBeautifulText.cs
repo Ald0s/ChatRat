@@ -21,6 +21,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using System.Drawing;
+using ChatRat.Network.Messages;
+using ChatRat.Network.Client;
 
 namespace ChatRat.Elements {
     public class CBeautifulText {
@@ -34,7 +36,42 @@ namespace ChatRat.Elements {
             this.orders = new Queue<CWriteOrder>();
         }
 
-        #region Context Macros
+        #region Macros
+        public void SelfMovedTo(CClient cClient, CRoom newRoom) {
+            WriteTexts(
+                new string[] { "You've been moved to ", newRoom.Name },
+                new Color[] { defaultColour, Color.Indigo
+                });
+        }
+
+        public void UserJoinRoom(COfflineUser user, CRoom newRoom) {
+            WriteTexts(
+                new string[] { "[" + user.Rank.Name + "] " + user.Username, " has joined your room." },
+                new Color[] { user.Rank.Colour, defaultColour, Color.Indigo, defaultColour
+                });
+        }
+
+        public void UserLeftRoom(COfflineUser user, CRoom old) {
+            WriteTexts(
+                new string[] { "[" + user.Rank.Name + "] " + user.Username, " has moved to '", old.Name, "'" },
+                new Color[] { user.Rank.Colour, defaultColour, Color.Indigo, defaultColour
+                });
+        }
+
+        public void ChatMessage(msg_SendMessage chat) {
+            // Some logic for timestamp here.
+            // We'll miss out on it for now cos it makes the output look dirty.
+            
+            COfflineUser user = chat.ReadUser();
+            string msg = chat.ReadString();
+            double timestamp = chat.ReadDouble();
+            
+            WriteTexts(
+                new string[] { "[" + user.Rank.Name + "] " + user.Username, ": " + msg },
+                new Color[] { user.Rank.Colour, defaultColour
+                });
+        }
+        
         public void DisconnectFromServer(string reason) {
             WriteTexts(
                 new string[] { "You've been disconnected from the server! (", reason, ")" },
@@ -147,7 +184,10 @@ namespace ChatRat.Elements {
                     target.SelectionColor = old;
                     target.AppendText(Environment.NewLine);
                 }
-            } catch (NullReferenceException) {
+            } catch (ObjectDisposedException) {
+                return;
+            }
+            catch (NullReferenceException) {
                 return;
             }
         }

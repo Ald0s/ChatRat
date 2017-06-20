@@ -59,6 +59,12 @@ namespace ChatRat.Network.Client {
             base.Connect(cfg, true);
         }
 
+        public void HandleInput(string input, DateTime time) {
+            // This is going to the server.
+
+            SendNetMessage(new msg_CreateMessage(input, time));
+        }
+
         private void CClient_Authenticated(CClientMain client) {
             beautiful.WriteServerInfo(ServerName, ServerDescription);
 
@@ -102,6 +108,37 @@ namespace ChatRat.Network.Client {
                 case "lostuser":
                     RemoveUser(((msg_LostUser)message).GetUser());
                     break;
+                    
+                case "sent_chatmsg": 
+                    beautiful.ChatMessage((msg_SendMessage)message);
+                    break;
+
+                case "moveroom":
+                    HandleMoveRoom((msg_MoveRoom)message);
+                    break;
+            }
+        }
+
+        private void HandleMoveRoom(msg_MoveRoom message) {
+            bool us = message.ReadBool();
+            bool join = message.ReadBool();
+
+            COfflineUser user = null;
+            if (!us)
+                user = message.ReadUser();
+
+            CRoom old = message.ReadRoom();
+            CRoom newRoom = message.ReadRoom();
+
+            if (us) {
+                if (join)
+                    // You've been moved ...
+                    beautiful.SelfMovedTo(this, newRoom);
+            } else {
+                if (join)
+                    beautiful.UserJoinRoom(user, newRoom);
+                else
+                    beautiful.UserLeftRoom(user, old);
             }
         }
 
