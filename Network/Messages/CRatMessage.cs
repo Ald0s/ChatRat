@@ -31,16 +31,40 @@ namespace ChatRat.Network.Messages {
             : base(_name) {
 
         }
-        
+
+        #region Arrays
+        public void WriteRooms(CRoom[] rooms) {
+            int c = rooms.Length;
+            WriteInt(c);
+            for(int i = 0; i < c; i++) {
+                WriteRoom(rooms[i]);
+            }
+        }
+
+        public CRoom[] ReadRooms() {
+            int c = ReadInt();
+            List<CRoom> rooms = new List<CRoom>();
+
+            for(int i = 0; i < c; i++) {
+                rooms.Add(ReadRoom());
+            }
+            return rooms.ToArray();
+        }
+        #endregion
+
         #region Room
         public void WriteRoom(CRoom room) {
             WriteString(room.Name);
+            WriteString(room.DisplayName);
             WriteBool(room.Muted);
+            WriteBool(room.Locked);
         }
         
         public CRoom ReadRoom() {
             return new CRoom(
                 ReadString(),
+                ReadString(),
+                ReadBool(),
                 ReadBool());
         }
         #endregion

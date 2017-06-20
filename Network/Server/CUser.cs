@@ -24,6 +24,7 @@ using ZapNetwork.Server;
 using ChatRat.Elements;
 using ZapNetwork.Shared;
 using ZapNetwork;
+using ChatRat.Network.Messages;
 
 namespace ChatRat.Network.Server {
     public class CUser : CServerClient {
@@ -61,9 +62,11 @@ namespace ChatRat.Network.Server {
         }
 
         public void UpdateRoom(CRoom room) {
-            this.room = room;
+            // Tell us we've been moved, if this isn't the initial move.
+            if(this.room != null)
+                SendNetMessage(new msg_ActionReview("You moved to '" + room.Name + "'", Color.DarkOrchid));
 
-            // Tell us we've been moved.
+            this.room = room;
         }
         
         // Information we want to SEND the client.

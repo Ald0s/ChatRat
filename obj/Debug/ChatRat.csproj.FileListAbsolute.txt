@@ -12,3 +12,4 @@ C:\Programming\C#\ChatRat\ChatRat\obj\Debug\ChatRat.UI.Panels.CMainPanel.resourc
 C:\Programming\C#\ChatRat\ChatRat\obj\Debug\ChatRat.csproj.GenerateResource.Cache
 C:\Programming\C#\ChatRat\ChatRat\obj\Debug\ChatRat.exe
 C:\Programming\C#\ChatRat\ChatRat\obj\Debug\ChatRat.pdb
+C:\Programming\C#\ChatRat\ChatRat\obj\Debug\ChatRat.UI.Panels.CViewUsers.resources

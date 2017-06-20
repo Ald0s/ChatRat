@@ -28,6 +28,22 @@ namespace ChatRat.UI.InstrumentClusters {
             stop.Text = "Stop Server";
             stop.Click += ObjectClicked;
             this.AddControl(stop);
+
+            ToolStripButton users = new ToolStripButton();
+            users.Image = Resources.user;
+            users.DisplayStyle = ToolStripItemDisplayStyle.ImageAndText;
+            users.Name = "btnViewUsers";
+            users.Text = "View Users";
+            users.Click += ObjectClicked;
+            this.AddControl(users);
+
+            ToolStripDropDownButton rooms = new ToolStripDropDownButton();
+            rooms.Image = Resources.television;
+            rooms.DisplayStyle = ToolStripItemDisplayStyle.ImageAndText;
+            rooms.Name = "btnChangeRoom";
+            rooms.Text = "Change Room";
+            rooms.DropDownOpening += ObjectClicked;
+            this.AddControl(rooms);
         }
     }
 }

@@ -25,10 +25,10 @@
         private void InitializeComponent() {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.txtPassword = new ChatRat.UI.Controls.CUserInput();
             this.txtUsername = new ChatRat.UI.Controls.CUserInput();
             this.txtIPAddress = new ChatRat.UI.Controls.CUserInput();
             this.txtListenPort = new ChatRat.UI.Controls.CUserInput();
-            this.txtPassword = new ChatRat.UI.Controls.CUserInput();
             this.groupBox1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
@@ -64,6 +64,16 @@
             this.tableLayoutPanel1.Size = new System.Drawing.Size(524, 154);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
+            // txtPassword
+            // 
+            this.txtPassword.ForeColor = System.Drawing.Color.Black;
+            this.txtPassword.Location = new System.Drawing.Point(3, 93);
+            this.txtPassword.MaxLength = 30;
+            this.txtPassword.Name = "txtPassword";
+            this.txtPassword.Placeholder = "Password (if required)";
+            this.txtPassword.Size = new System.Drawing.Size(188, 23);
+            this.txtPassword.TabIndex = 7;
+            // 
             // txtUsername
             // 
             this.txtUsername.ForeColor = System.Drawing.Color.Black;
@@ -94,16 +104,6 @@
             this.txtListenPort.Size = new System.Drawing.Size(46, 23);
             this.txtListenPort.TabIndex = 6;
             this.txtListenPort.Text = "9988";
-            // 
-            // txtPassword
-            // 
-            this.txtPassword.ForeColor = System.Drawing.Color.Black;
-            this.txtPassword.Location = new System.Drawing.Point(3, 93);
-            this.txtPassword.MaxLength = 30;
-            this.txtPassword.Name = "txtPassword";
-            this.txtPassword.Placeholder = "Password (if required)";
-            this.txtPassword.Size = new System.Drawing.Size(188, 23);
-            this.txtPassword.TabIndex = 7;
             // 
             // CJoinServer
             // 

@@ -21,6 +21,7 @@ using System.Windows.Forms;
 namespace ChatRat.UI {
     public class CUISwitcher {
         public CBasePanel ChosenPanel { get { return this.selectedUI; } }
+        public CBasePanel SelectedPanel { get { return this.selectedUI; } }
 
         private Panel pParent;
         private List<CBasePanel> lControls;

@@ -16,8 +16,12 @@ using System.Windows.Forms;
 
 namespace ChatRat.UI {
     public class CToolStripController {
+        public CInstrumentCluster SelectedCluster { get { return this.selectedCluster; } }
+
         private ToolStrip container;
         private List<CInstrumentCluster> clusters;
+
+        private CInstrumentCluster selectedCluster;
 
         public CToolStripController(ToolStrip _target) {
             this.container = _target;
@@ -36,6 +40,7 @@ namespace ChatRat.UI {
                 RegisterCluster(cluster);
             }
 
+            selectedCluster = cluster;
             container.Items.Clear();
             cluster.Update(container);
         }

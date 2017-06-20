@@ -37,11 +37,17 @@ namespace ChatRat.Elements {
         }
 
         #region Macros
-        public void SelfMovedTo(CClient cClient, CRoom newRoom) {
-            WriteTexts(
-                new string[] { "You've been moved to ", newRoom.Name },
-                new Color[] { defaultColour, Color.Indigo
-                });
+        public void RoomChangeResult(CRoom room, bool success) {
+            if(success)
+                WriteTexts(
+                    new string[] { "We successfully moved you to '", room.DisplayName, "'" },
+                    new Color[] { defaultColour, Color.BlanchedAlmond, defaultColour
+                    });
+            else
+                WriteTexts(
+                    new string[] { "We were unable to change your room. '" },
+                    new Color[] { defaultColour
+                    });
         }
 
         public void UserJoinRoom(COfflineUser user, CRoom newRoom) {
@@ -53,9 +59,20 @@ namespace ChatRat.Elements {
 
         public void UserLeftRoom(COfflineUser user, CRoom old) {
             WriteTexts(
-                new string[] { "[" + user.Rank.Name + "] " + user.Username, " has moved to '", old.Name, "'" },
+                new string[] { "[" + user.Rank.Name + "] " + user.Username, " has left your room." },
                 new Color[] { user.Rank.Colour, defaultColour, Color.Indigo, defaultColour
                 });
+        }
+
+        public void ProcessJoinLeave(msg_JoinLeave joinleave) {
+            COfflineUser user = joinleave.ReadUser();
+            CRoom subject = joinleave.ReadRoom();
+            bool join_or_leave = joinleave.ReadBool();
+
+            if (join_or_leave)
+                UserJoinRoom(user, subject);
+            else
+                UserLeftRoom(user, subject);
         }
 
         public void ChatMessage(msg_SendMessage chat) {

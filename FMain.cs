@@ -22,12 +22,16 @@ using ChatRat.Elements;
 using ChatRat.UI.InstrumentClusters;
 using ChatRat.Network.Server;
 using ChatRat.Network.Client;
+using ChatRat.Properties;
 
 namespace ChatRat {
     public partial class FMain : Form {
         private CUISwitcher primary;
         private CBeautifulText beautiful;
         private CToolStripController control;
+
+        // A list for holding rooms.
+        private List<CRoom> rooms;
 
         // A bunch of instrument clusters.
         // In other words, buttons and other controls for the context strip.
@@ -36,6 +40,7 @@ namespace ChatRat {
         // The main panel. 
         // Text output and input controls.
         private CMainPanel main;
+        private CViewUsers viewUsers;
 
         // Create Server panel.
         private CCreateServer createServer;
@@ -49,14 +54,20 @@ namespace ChatRat {
         // All use main panel by default.
         private CHostingCluster hostingCluster;
         private CConnectedCluster connectedCluster;
+        private CViewUsersCluster viewUsersCluster;
 
         // Network stuff.
         private CServer server;
         private CClient client;
 
+        // For going back.
+        private CBasePanel previousPanel;
+        private CInstrumentCluster previousContext;
+
         public FMain() {
             InitializeComponent();
             this.FormClosing += FMain_FormClosing;
+            this.rooms = new List<CRoom>();
 
             // This will act as a context tool strip.
             // Changing to suit the needs of 'panMain'
@@ -68,6 +79,9 @@ namespace ChatRat {
             main.ButtonClicked += Main_ButtonClicked;
             main.InputEntered += Main_InputEntered;
             primary.RegisterElement(main);
+
+            this.viewUsers = new CViewUsers(panMain);
+            primary.RegisterElement(viewUsers);
 
             this.createServer = new CCreateServer(panMain);
             createServer.StartServer += CreateServer_StartServer;
@@ -87,7 +101,12 @@ namespace ChatRat {
 
             // Setup basic network classes.
             server = new CServer(null, beautiful);
+            server.RoomAdded += RoomAdded;
+            server.RoomRemoved += RoomRemoved;
+
             client = new CClient(null, beautiful);
+            client.RoomAdded += RoomAdded;
+            client.RoomRemoved += RoomRemoved;
             client.Disconnected += Client_Disconnected;
 
             // Select the default one.
@@ -97,14 +116,37 @@ namespace ChatRat {
         private void Main_InputEntered(string input, DateTime time) {
             // Handling an 'enter' press on the primary text input.
             // Send the input to both the server and client.
+            ClientState_e state = GetState();
 
-            if(server != null && server.Listening) {
+            if(state == ClientState_e.Server)
                 server.HandleInput(input, time);
-                return;
-            }
-
-            if(client != null && client.Connected) {
+            else if(state == ClientState_e.Client)
                 client.HandleInput(input, time);
+        }
+
+        private void RoomButton_Clicked(object sender, EventArgs e) {
+            // Handling a room change.
+            // Send input to both the server and client.
+            ClientState_e state = GetState();
+
+            if (state == ClientState_e.Server)
+                server.ChangeRoom((CRoom)((ToolStripMenuItem)sender).Tag);
+            else if (state == ClientState_e.Client)
+                client.ChangeRoom((CRoom)((ToolStripMenuItem)sender).Tag);
+        }
+
+        private void DisplayAvailableRooms(ToolStripDropDownButton btnRooms) {
+            btnRooms.DropDownItems.Clear();
+
+            for(int i = 0; i < rooms.Count; i++) {
+                ToolStripMenuItem btn = new ToolStripMenuItem();
+                btn.DisplayStyle = ToolStripItemDisplayStyle.ImageAndText;
+                btn.Image = Resources.world;
+                btn.Text = rooms[i].DisplayName;
+                btn.Tag = rooms[i];
+                btn.Click += RoomButton_Clicked;
+
+                btnRooms.DropDownItems.Add(btn);
             }
         }
 
@@ -130,6 +172,14 @@ namespace ChatRat {
             control.SelectCluster(primaryCluster);
         }
 
+        private void Back() {
+            if (previousPanel != null)
+                primary.SelectUI(previousPanel.Name);
+
+            if (previousContext != null)
+                control.SelectCluster(previousContext);
+        }
+
         private void CreateInstrumentClusters() {
             primaryCluster = new CPrimary(main);
             control.RegisterCluster(primaryCluster);
@@ -145,6 +195,9 @@ namespace ChatRat {
 
             connectedCluster = new CConnectedCluster(main);
             control.RegisterCluster(connectedCluster);
+
+            viewUsersCluster = new CViewUsersCluster(main);
+            control.RegisterCluster(viewUsersCluster);
         }
         
         // Handles clicks on context items from the main panel.
@@ -174,9 +227,35 @@ namespace ChatRat {
                     client.Shutdown("Disconnect by user.");
                     break;
                 // ===
+
+                // Both stuff.
+                case "btnChangeRoom":
+                    DisplayAvailableRooms((ToolStripDropDownButton)args[0]);
+                    break;
+
+                case "btnViewUsers":
+                    ShowConnectedUsers();
+                    break;
+
+                case "btnViewChat":
+                    Back();
+                    break;
+                // ===
             }
         }
-        
+
+        // Change to connected users context.
+        // For hosting, this will also allow administrative options.
+        private void ShowConnectedUsers() {
+            this.previousPanel = primary.SelectedPanel;
+            this.previousContext = control.SelectedCluster;
+
+            viewUsers.Update(server, client, GetState());
+
+            primary.SelectUI(viewUsers.PanelName);
+            control.SelectCluster(viewUsersCluster);
+        }
+
         // Creating your own server.
         private void CreateServer_StartServer() {
             string error = null;
@@ -221,5 +300,47 @@ namespace ChatRat {
         private void Client_Disconnected(string reason) {
             DefaultUI();
         }
+
+        private ClientState_e GetState() {
+            if (server != null && server.Listening)
+                return ClientState_e.Server;
+            else if (client != null && client.Connected)
+                return ClientState_e.Client;
+            else
+                return ClientState_e.None;
+        }
+
+        private void RoomAdded(CRoom room) {
+            if (GetRoom(room.Name) != -1)
+                return;
+
+            rooms.Add(room);
+        }
+
+        private void RoomRemoved(CRoom room) {
+            int idx = -1;
+            if ((idx = GetRoom(room.Name)) == -1)
+                return;
+
+            CRoom target = rooms[idx];
+            if (target.Locked)
+                return;
+
+            rooms.RemoveAt(idx);
+        }
+
+        private int GetRoom(string name) {
+            for(int i = 0; i < rooms.Count; i++) {
+                if (rooms[i].Name == name)
+                    return i;
+            }
+            return -1;
+        }
+    }
+
+    public enum ClientState_e {
+        Server,
+        Client,
+        None
     }
 }

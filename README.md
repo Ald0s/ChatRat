@@ -14,3 +14,7 @@ Remember to also acquire [ZapNetwork](https://github.com/Ald0s/ZapNetwork) and a
 
 ### Authors
 * **Alden Viljoen**
+
+### Other Credits
+* [Mark James - Amazing silk icons](http://www.famfamfam.com/)
+

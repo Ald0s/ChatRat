@@ -68,10 +68,15 @@
     </Compile>
     <Compile Include="Network\Client\CClient.cs" />
     <Compile Include="Network\Messages\CRatMessage.cs" />
+    <Compile Include="Network\Messages\msg_ActionReview.cs" />
+    <Compile Include="Network\Messages\msg_AddRemoveRoom.cs" />
+    <Compile Include="Network\Messages\msg_ChangeRoom.cs" />
+    <Compile Include="Network\Messages\msg_ChangeRoomResult.cs" />
     <Compile Include="Network\Messages\msg_ChatMessage.cs" />
+    <Compile Include="Network\Messages\msg_JoinLeave.cs" />
     <Compile Include="Network\Messages\msg_LostUser.cs" />
     <Compile Include="Network\Messages\msg_NewUser.cs" />
-    <Compile Include="Network\Messages\msg_Room.cs" />
+    <Compile Include="Network\Messages\msg_ServerInfo.cs" />
     <Compile Include="Network\Server\CServer.cs" />
     <Compile Include="Network\Server\CUser.cs" />
     <Compile Include="Program.cs" />
@@ -86,6 +91,7 @@
     <Compile Include="UI\InstrumentClusters\CHostingCluster.cs" />
     <Compile Include="UI\InstrumentClusters\CJoinServerInstruments.cs" />
     <Compile Include="UI\InstrumentClusters\CPrimary.cs" />
+    <Compile Include="UI\InstrumentClusters\CViewUsersCluster.cs" />
     <Compile Include="UI\Panels\CCreateServer.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -103,6 +109,12 @@
     </Compile>
     <Compile Include="UI\Panels\CMainPanel.Designer.cs">
       <DependentUpon>CMainPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Panels\CViewUsers.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Panels\CViewUsers.Designer.cs">
+      <DependentUpon>CViewUsers.cs</DependentUpon>
     </Compile>
     <EmbeddedResource Include="FMain.resx">
       <DependentUpon>FMain.cs</DependentUpon>
@@ -125,6 +137,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\Panels\CMainPanel.resx">
       <DependentUpon>CMainPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Panels\CViewUsers.resx">
+      <DependentUpon>CViewUsers.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -162,6 +177,18 @@
       <Project>{b26a171a-2ce3-4d2c-bc48-2614b5fefb08}</Project>
       <Name>ZapNetwork</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\television.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\world.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\user.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\comment.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -32,9 +32,21 @@ namespace ChatRat.Network.Client {
         // Referred to by 'ClientID'
         public string Username { get { return this.sUsername; } }
         public CRank Rank { get { return this.rank; } }
+        public CRoom Room { get { return this.room; } }
 
         private CRank rank;
+        private CRoom room;
         private string sUsername;
+        //
+
+        public List<COfflineUser> Users { get { return this.users; } }
+
+        // Room related events.
+        public delegate void RoomAdded_Delegate(CRoom room);
+        public event RoomAdded_Delegate RoomAdded;
+
+        public delegate void RoomRemoved_Delegate(CRoom room);
+        public event RoomRemoved_Delegate RoomRemoved;
         //
 
         // A clientside mirror of all users connected to the server.
@@ -63,6 +75,12 @@ namespace ChatRat.Network.Client {
             // This is going to the server.
 
             SendNetMessage(new msg_CreateMessage(input, time));
+        }
+
+        public void ChangeRoom(CRoom chosen) {
+            // This is going to the server.
+
+            SendNetMessage(new msg_ChangeRoom(chosen));
         }
 
         private void CClient_Authenticated(CClientMain client) {
@@ -101,6 +119,14 @@ namespace ChatRat.Network.Client {
 
         private void CClient_NetMessageReceived(CClientMain client, ZapNetwork.Shared.CNetMessage message) {
             switch (message.GetMessageName()) {
+                case "actionreview":
+                    ((msg_ActionReview)message).Process(beautiful);
+                    break;
+
+                case "serverinfo":
+                    ProcessServerInformation((msg_ServerInfo)message);
+                    break;
+
                 case "newuser":
                     AddUser(((msg_NewUser)message).GetUser());
                     break;
@@ -113,32 +139,38 @@ namespace ChatRat.Network.Client {
                     beautiful.ChatMessage((msg_SendMessage)message);
                     break;
 
-                case "moveroom":
-                    HandleMoveRoom((msg_MoveRoom)message);
+                case "addremoveroom": // A loop back of add or remove.
+                    HandleRoomLoopback((msg_AddRemoveRoom)message);
+                    break;
+
+                case "joinleave":
+                    beautiful.ProcessJoinLeave((msg_JoinLeave)message);
+                    break;
+
+                case "changeroom_result":
+                    ProcessChangeRoomResult((msg_ChangeRoomResult)message);
                     break;
             }
         }
 
-        private void HandleMoveRoom(msg_MoveRoom message) {
-            bool us = message.ReadBool();
-            bool join = message.ReadBool();
+        private void ProcessChangeRoomResult(msg_ChangeRoomResult message) {
+            CRoom room = message.ReadRoom();
+            bool success = message.ReadBool();
 
-            COfflineUser user = null;
-            if (!us)
-                user = message.ReadUser();
+            this.room = room;
+            beautiful.RoomChangeResult(room, success);
+        }
 
-            CRoom old = message.ReadRoom();
-            CRoom newRoom = message.ReadRoom();
+        private void ProcessServerInformation(msg_ServerInfo message) {
+            // ERROR CASE
+            // Setting (default) client room to Home statically.
+            this.room = new CRoom("home", "Home", true);
 
-            if (us) {
-                if (join)
-                    // You've been moved ...
-                    beautiful.SelfMovedTo(this, newRoom);
-            } else {
-                if (join)
-                    beautiful.UserJoinRoom(user, newRoom);
-                else
-                    beautiful.UserLeftRoom(user, old);
+            CRoom[] rooms = message.ReadRooms();
+            if(RoomAdded != null) {
+                for(int i = 0; i < rooms.Length; i++) {
+                    RoomAdded(rooms[i]);
+                }
             }
         }
 
@@ -180,6 +212,16 @@ namespace ChatRat.Network.Client {
                 }
             }
             return false;
+        }
+
+        private void HandleRoomLoopback(msg_AddRemoveRoom addrem) {
+            CRoom room = addrem.ReadRoom();
+            bool add_or_remove = addrem.ReadBool();
+
+            if (add_or_remove && RoomAdded != null)
+                RoomAdded(room);
+            else if (!add_or_remove && RoomRemoved != null)
+                RoomRemoved(room);
         }
     }
 }

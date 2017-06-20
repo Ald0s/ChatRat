@@ -22,8 +22,16 @@ using ZapNetwork.Server;
 
 namespace ChatRat.Elements {
     public class CChatRooms {
+        public List<CRoom> Rooms { get { return this.rooms; } }
+
         private List<CServerClient> clients;
         private List<CRoom> rooms;
+
+        public delegate void RoomAdded_Delegate(CRoom newRoom);
+        public event RoomAdded_Delegate RoomAdded;
+
+        public delegate void RoomRemoved_Delegate(CRoom oldRoom);
+        public event RoomRemoved_Delegate RoomRemoved;
         
         private CRoom defaultRoom;
         
@@ -32,16 +40,19 @@ namespace ChatRat.Elements {
             this.clients = _clients;
             this.rooms = new List<CRoom>();
 
-            this.defaultRoom = AddRoom("home");
+            this.defaultRoom = AddRoom("Home", "home");
         }
         
-        public CRoom AddRoom(string name) {
+        public CRoom AddRoom(string display_name, string name) {
             if(GetRoom(name) != null)
                 return null;
                 
             // Adding a new room.
-            CRoom room = new CRoom(name);
+            CRoom room = new CRoom(name, display_name);
             rooms.Add(room);
+
+            if (RoomAdded != null)
+                RoomAdded(room);
             
             return room;
         }
@@ -65,8 +76,11 @@ namespace ChatRat.Elements {
             }
             
             rooms.Remove(target);
+
             // Report to all UI systems that the room has been removed.
             // Server and client.
+            if (RoomRemoved != null)
+                RoomRemoved(target);
         }
         
         public void MoveToRoom(CUser user, string name) {
@@ -82,7 +96,7 @@ namespace ChatRat.Elements {
 
             if(old != null)
                 old.RemoveUser(user);
-            target.AddUser(user);
+            target.AddUser(user, !(old == null));
 
             Console.WriteLine(user.Username + " was moved to '" + target.Name + "'");
         }
@@ -97,40 +111,61 @@ namespace ChatRat.Elements {
     }
     
     public class CRoom {
+        public string DisplayName { get { return this.sDisplayName; } }
         public string Name { get { return this.sName; } }
         public bool Muted { get { return this.bMutedRoom; } }
-        
+        public bool Locked { get { return this.bLocked; } }
+
+        private string sDisplayName; // A friendly version of name.
         private string sName;
         private bool bMutedRoom = false; // Set to true, no messages will be sent to any user.
+        private bool bLocked = false; // Can this room be removed?
         
         private List<CUser> users;
         
         // For server usage.
-        public CRoom(string _name) {
+        public CRoom(string _name, string _disname, bool _locked = false) {
             this.sName = _name;
+            this.sDisplayName = _disname;
+            this.bLocked = _locked;
+
             this.users = new List<CUser>();
         }
         
         // For client usage (storage)
-        public CRoom(string _name, bool _muted) {
+        public CRoom(string _name, string _disname, bool _muted, bool _locked = false) {
             this.sName = _name;
+            this.sDisplayName = _disname;
+            this.bLocked = _locked;
             this.bMutedRoom = _muted;
         }
         
-        public void AddUser(CUser user) {
+        public void AddUser(CUser user, bool broadcast = true) {
             if(HasUser(user))
                 return;
+
+            // Do any authentication checks here.
+            // Like, does the rank allow this user to join this group?
+            // At this time, just succeed.
+            user.SendNetMessage(new msg_ChangeRoomResult(this, true));
+
+            // Broadcast this user to THIS room as arriving.
+            if(broadcast)
+                this.BroadcastMessage(new msg_JoinLeave(user, this, true));
 
             user.UpdateRoom(this);
             users.Add(user);
         }
 
-        public void RemoveUser(CUser user) {
+        public void RemoveUser(CUser user, bool broadcast = true) {
             if(!HasUser(user))
                 return;
-                
-            // Send announcement.
+
             users.Remove(user);
+
+            // Broadcast this user has left to their CURRENT room.
+            if(broadcast)
+                user.Room.BroadcastMessage(new msg_JoinLeave(user, user.Room, false));
         }
         
         public bool HasUser(CUser user) {
