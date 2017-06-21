@@ -6,14 +6,14 @@ Simply compile the solution with Visual Studio (or your choice of compiler.)
 Remember to also acquire [ZapNetwork](https://github.com/Ald0s/ZapNetwork) and add it as a reference!
 
 ### Pictures
-Basics
 ![Demonstration](http://i.imgur.com/dRKZ5Ln.png)
 
-Separate Chat Rooms
+
 ![Chat Rooms](http://i.imgur.com/b0rLHrS.png)
 
-View/Manage Users
+
 ![View Users](http://i.imgur.com/rkNOa7D.png)
+
 
 ### Prerequisites
 * .NET Framework (4.0+)
