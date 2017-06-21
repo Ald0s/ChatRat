@@ -26,15 +26,18 @@ namespace ChatRat.Elements {
         public int ClientID { get { return this.iClientID; } }
         public string Username { get { return this.sUsername; } }
         public CRank Rank { get { return this.rRank; } }
+        public CRoom Room { get { return this.rRoom; } }
 
         private int iClientID;
         private string sUsername;
         private CRank rRank;
+        private CRoom rRoom;
 
-        public COfflineUser(int _id, string _user, CRank _rank) {
+        public COfflineUser(int _id, string _user, CRank _rank, CRoom _room) {
             this.iClientID = _id;
             this.sUsername = _user;
             this.rRank = _rank;
+            this.rRoom = _room;
         }
 
         public void UpdateUsername(string _user) {
@@ -43,6 +46,10 @@ namespace ChatRat.Elements {
 
         public void UpdateRank(CRank _rank) {
             this.rRank = _rank;
+        }
+
+        public void UpdateRoom(CRoom _room) {
+            this.rRoom = _room;
         }
     }
 }

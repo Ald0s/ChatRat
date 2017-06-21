@@ -101,10 +101,12 @@ namespace ChatRat {
 
             // Setup basic network classes.
             server = new CServer(null, beautiful);
+            server.UIUpdate += UpdateUI;
             server.RoomAdded += RoomAdded;
             server.RoomRemoved += RoomRemoved;
 
             client = new CClient(null, beautiful);
+            client.UIUpdate += UpdateUI;
             client.RoomAdded += RoomAdded;
             client.RoomRemoved += RoomRemoved;
             client.Disconnected += Client_Disconnected;
@@ -174,7 +176,7 @@ namespace ChatRat {
 
         private void Back() {
             if (previousPanel != null)
-                primary.SelectUI(previousPanel.Name);
+                primary.SelectUI(previousPanel.PanelName);
 
             if (previousContext != null)
                 control.SelectCluster(previousContext);
@@ -250,7 +252,7 @@ namespace ChatRat {
             this.previousPanel = primary.SelectedPanel;
             this.previousContext = control.SelectedCluster;
 
-            viewUsers.Update(server, client, GetState());
+            viewUsers.Update(server, client, GetLocalRoom(), GetState());
 
             primary.SelectUI(viewUsers.PanelName);
             control.SelectCluster(viewUsersCluster);
@@ -299,6 +301,24 @@ namespace ChatRat {
 
         private void Client_Disconnected(string reason) {
             DefaultUI();
+        }
+
+        private void UpdateUI() {
+            // Update the view users interface.
+            viewUsers.Update(server, client, GetLocalRoom(), GetState());
+        }
+
+        // A macro for getting the room we're in.
+        // From both server OR client.
+        private CRoom GetLocalRoom() {
+            ClientState_e state = GetState();
+
+            if (state == ClientState_e.Server)
+                return server.GetLocalhost().Room;
+            else if (state == ClientState_e.Client)
+                return client.Room;
+
+            return null;
         }
 
         private ClientState_e GetState() {

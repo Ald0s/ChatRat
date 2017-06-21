@@ -41,6 +41,7 @@ namespace ChatRat.Elements {
             this.rooms = new List<CRoom>();
 
             this.defaultRoom = AddRoom("Home", "home");
+            AddRoom("Politics", "pol");
         }
         
         public CRoom AddRoom(string display_name, string name) {
@@ -83,7 +84,7 @@ namespace ChatRat.Elements {
                 RoomRemoved(target);
         }
         
-        public void MoveToRoom(CUser user, string name) {
+        public bool MoveToRoom(CUser user, string name) {
             // Logic for moving a user from one room to another.
             // Basic procedure is as follows;
             // Announce leave to current room, announce arrival to destination room,
@@ -92,13 +93,16 @@ namespace ChatRat.Elements {
             CRoom target = null,
                   old = user.Room;
             if((target = GetRoom(name)) == null)
-                return;
+                return false;
 
             if(old != null)
                 old.RemoveUser(user);
-            target.AddUser(user, !(old == null));
+            if (!target.AddUser(user, !(old == null)))
+                return false;
 
             Console.WriteLine(user.Username + " was moved to '" + target.Name + "'");
+
+            return true;
         }
         
         private CRoom GetRoom(string name) {
@@ -121,6 +125,7 @@ namespace ChatRat.Elements {
         private bool bMutedRoom = false; // Set to true, no messages will be sent to any user.
         private bool bLocked = false; // Can this room be removed?
         
+        [NonSerialized]
         private List<CUser> users;
         
         // For server usage.
@@ -140,14 +145,15 @@ namespace ChatRat.Elements {
             this.bMutedRoom = _muted;
         }
         
-        public void AddUser(CUser user, bool broadcast = true) {
+        public bool AddUser(CUser user, bool broadcast = true) {
             if(HasUser(user))
-                return;
+                return false;
 
             // Do any authentication checks here.
             // Like, does the rank allow this user to join this group?
             // At this time, just succeed.
-            user.SendNetMessage(new msg_ChangeRoomResult(this, true));
+            if(broadcast)
+                user.SendNetMessage(new msg_ChangeRoomResult(this, true));
 
             // Broadcast this user to THIS room as arriving.
             if(broadcast)
@@ -155,6 +161,8 @@ namespace ChatRat.Elements {
 
             user.UpdateRoom(this);
             users.Add(user);
+
+            return true;
         }
 
         public void RemoveUser(CUser user, bool broadcast = true) {

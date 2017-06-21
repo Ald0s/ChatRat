@@ -62,10 +62,6 @@ namespace ChatRat.Network.Server {
         }
 
         public void UpdateRoom(CRoom room) {
-            // Tell us we've been moved, if this isn't the initial move.
-            if(this.room != null)
-                SendNetMessage(new msg_ActionReview("You moved to '" + room.Name + "'", Color.DarkOrchid));
-
             this.room = room;
         }
         

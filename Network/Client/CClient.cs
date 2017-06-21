@@ -49,6 +49,9 @@ namespace ChatRat.Network.Client {
         public event RoomRemoved_Delegate RoomRemoved;
         //
 
+        public delegate void FireUIUpdate_Delegate();
+        public event FireUIUpdate_Delegate UIUpdate;
+
         // A clientside mirror of all users connected to the server.
         private List<COfflineUser> users;
 
@@ -134,6 +137,10 @@ namespace ChatRat.Network.Client {
                 case "lostuser":
                     RemoveUser(((msg_LostUser)message).GetUser());
                     break;
+
+                case "updateuser":
+                    HandleUpdateUser((msg_UpdateUser)message);
+                    break;
                     
                 case "sent_chatmsg": 
                     beautiful.ChatMessage((msg_SendMessage)message);
@@ -144,16 +151,54 @@ namespace ChatRat.Network.Client {
                     break;
 
                 case "joinleave":
-                    beautiful.ProcessJoinLeave((msg_JoinLeave)message);
+                    HandleJoinLeave((msg_JoinLeave)message);
                     break;
 
                 case "changeroom_result":
-                    ProcessChangeRoomResult((msg_ChangeRoomResult)message);
+                    HandleChangeRoomResult((msg_ChangeRoomResult)message);
                     break;
             }
         }
 
-        private void ProcessChangeRoomResult(msg_ChangeRoomResult message) {
+        private void HandleUpdateUser(msg_UpdateUser message) {
+            int sw = message.ReadInt();
+            COfflineUser user = message.ReadUser();
+
+            // sw == 1 means room has been updated.
+            // sw == 2 means rank has been updated.
+
+            int idx = -1;
+            switch (sw) {
+                case 1:
+                    if ((idx = GetUserIndex(user)) != -1)
+                        users[idx].UpdateRoom(
+                            message.ReadRoom());
+                    break;
+
+                case 2:
+                    if ((idx = GetUserIndex(user)) != -1)
+                        users[idx].UpdateRank(
+                            message.ReadRank());
+                    break;
+            }
+
+            if (UIUpdate != null) {
+                // The UI will then make all necessary changes to synchronise with the backend;
+                // such as updating the ListView containing users.
+
+                UIUpdate();
+            }
+        }
+
+        private void HandleJoinLeave(msg_JoinLeave message) {
+            COfflineUser user = message.ReadUser();
+            CRoom subject = message.ReadRoom();
+            bool join_or_leave = message.ReadBool();
+
+            beautiful.ProcessJoinLeave(user, subject, join_or_leave);
+        }
+
+        private void HandleChangeRoomResult(msg_ChangeRoomResult message) {
             CRoom room = message.ReadRoom();
             bool success = message.ReadBool();
 
@@ -165,6 +210,9 @@ namespace ChatRat.Network.Client {
             // ERROR CASE
             // Setting (default) client room to Home statically.
             this.room = new CRoom("home", "Home", true);
+
+            COfflineUser[] _users = message.ReadUsers();
+            users.AddRange(_users);
 
             CRoom[] rooms = message.ReadRooms();
             if(RoomAdded != null) {
@@ -179,7 +227,13 @@ namespace ChatRat.Network.Client {
                 return;
 
             users.Add(user);
-            // Report an update. See below.
+
+            if (UIUpdate != null) {
+                // The UI will then make all necessary changes to synchronise with the backend;
+                // such as updating the ListView containing users.
+
+                UIUpdate();
+            }
         }
 
         private void UpdateUser(COfflineUser user) {
@@ -188,7 +242,12 @@ namespace ChatRat.Network.Client {
             RemoveUser(user, false);
             AddUser(user);
 
-            // Report an update. See below.
+            if (UIUpdate != null) {
+                // The UI will then make all necessary changes to synchronise with the backend;
+                // such as updating the ListView containing users.
+
+                UIUpdate();
+            }
         }
 
         private void RemoveUser(COfflineUser user, bool report = true) {
@@ -198,10 +257,11 @@ namespace ChatRat.Network.Client {
                 }
             }
 
-            if (report) {
-                // Fire the event that'll report a change to the UI.
+            if (report && UIUpdate != null) {
                 // The UI will then make all necessary changes to synchronise with the backend;
                 // such as updating the ListView containing users.
+
+                UIUpdate();
             }
         }
 
@@ -212,6 +272,15 @@ namespace ChatRat.Network.Client {
                 }
             }
             return false;
+        }
+
+        private int GetUserIndex(COfflineUser user) {
+            for (int i = 0; i < users.Count; i++) {
+                if (users[i].ClientID == user.ClientID) {
+                    return i;
+                }
+            }
+            return -1;
         }
 
         private void HandleRoomLoopback(msg_AddRemoveRoom addrem) {

@@ -24,16 +24,18 @@
         /// </summary>
         private void InitializeComponent() {
             this.lstUsers = new System.Windows.Forms.ListView();
-            this.comboType = new System.Windows.Forms.ComboBox();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.comboType = new System.Windows.Forms.ComboBox();
+            this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.SuspendLayout();
             // 
             // lstUsers
             // 
             this.lstUsers.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader1,
-            this.columnHeader2});
+            this.columnHeader2,
+            this.columnHeader3});
             this.lstUsers.GridLines = true;
             this.lstUsers.Location = new System.Drawing.Point(3, 37);
             this.lstUsers.Name = "lstUsers";
@@ -41,6 +43,16 @@
             this.lstUsers.TabIndex = 0;
             this.lstUsers.UseCompatibleStateImageBehavior = false;
             this.lstUsers.View = System.Windows.Forms.View.Details;
+            // 
+            // columnHeader1
+            // 
+            this.columnHeader1.Text = "Username";
+            this.columnHeader1.Width = 112;
+            // 
+            // columnHeader2
+            // 
+            this.columnHeader2.Text = "Rank";
+            this.columnHeader2.Width = 132;
             // 
             // comboType
             // 
@@ -51,15 +63,10 @@
             this.comboType.TabIndex = 1;
             this.comboType.Text = "All Users";
             // 
-            // columnHeader1
+            // columnHeader3
             // 
-            this.columnHeader1.Text = "Username";
-            this.columnHeader1.Width = 112;
-            // 
-            // columnHeader2
-            // 
-            this.columnHeader2.Text = "Rank";
-            this.columnHeader2.Width = 407;
+            this.columnHeader3.Text = "Room";
+            this.columnHeader3.Width = 275;
             // 
             // CViewUsers
             // 
@@ -80,5 +87,6 @@
         private System.Windows.Forms.ComboBox comboType;
         private System.Windows.Forms.ColumnHeader columnHeader1;
         private System.Windows.Forms.ColumnHeader columnHeader2;
+        private System.Windows.Forms.ColumnHeader columnHeader3;
     }
 }

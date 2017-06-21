@@ -36,7 +36,8 @@ namespace ChatRat.Network.Messages {
         public void WriteRooms(CRoom[] rooms) {
             int c = rooms.Length;
             WriteInt(c);
-            for(int i = 0; i < c; i++) {
+
+            for (int i = 0; i < c; i++) {
                 WriteRoom(rooms[i]);
             }
         }
@@ -45,10 +46,30 @@ namespace ChatRat.Network.Messages {
             int c = ReadInt();
             List<CRoom> rooms = new List<CRoom>();
 
-            for(int i = 0; i < c; i++) {
+            for (int i = 0; i < c; i++) {
                 rooms.Add(ReadRoom());
             }
             return rooms.ToArray();
+        }
+
+        public void WriteUsers(CUser[] users) {
+            int c = users.Length;
+            WriteInt(c);
+
+            for(int i = 0; i < c; i++) {
+                WriteUser(users[i]);
+            }
+        }
+
+        public COfflineUser[] ReadUsers() {
+            int c = ReadInt();
+            List<COfflineUser> users = new List<COfflineUser>();
+
+            for(int i = 0; i < c; i++) {
+                users.Add(ReadUser());
+            }
+
+            return users.ToArray();
         }
         #endregion
 
@@ -75,6 +96,7 @@ namespace ChatRat.Network.Messages {
             WriteInt(user.ClientID);
             WriteString(user.Username);
             WriteRank(user.Rank);
+            WriteRoom(user.Room);
         }
         
         // Client usage.
@@ -82,13 +104,15 @@ namespace ChatRat.Network.Messages {
             WriteInt(user.ClientID);
             WriteString(user.Username);
             WriteRank(user.Rank);
+            WriteRoom(user.Room);
         }
 
         public COfflineUser ReadUser() {
             return new COfflineUser(
                 ReadInt(),
                 ReadString(),
-                ReadRank());
+                ReadRank(),
+                ReadRoom());
         }
         #endregion
 

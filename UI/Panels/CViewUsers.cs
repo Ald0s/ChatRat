@@ -15,8 +15,12 @@ namespace ChatRat.UI.Panels {
     public partial class CViewUsers : CBasePanel {
         private ClientState_e state;
 
+        private CRoom room;
+
         private CServer server;
         private CClient client;
+
+        private int currentOption = 0;
 
         public CViewUsers(Panel _parent)
             : base(_parent, "viewUsers") {
@@ -26,14 +30,21 @@ namespace ChatRat.UI.Panels {
             this.comboType.SelectedIndexChanged += ComboType_SelectedIndexChanged;
         }
 
-        public void Update(CServer _server, CClient _client, ClientState_e state) {
+        public void Update(CServer _server, CClient _client, CRoom _room, ClientState_e state) {
             this.client = _client;
             this.server = _server;
             this.state = state;
-            LoadAllUsers();
+            this.room = _room;
+
+            // Trick an update instead of writing separate logic to differentiate between the options.
+            comboType.SelectedIndex = 0;
+
+            SelectOption();
         }
 
         private void LoadAllUsers() {
+            lstUsers.Items.Clear();
+
             if (state == ClientState_e.Server) {
                 for (int i = 0; i < server.Clients.Count; i++) {
                     CUser user = (CUser)server.Clients[i];
@@ -47,10 +58,33 @@ namespace ChatRat.UI.Panels {
             }
         }
 
+        private void LoadCurrentRoomUsers() {
+            lstUsers.Items.Clear();
+
+            if (state == ClientState_e.Server) {
+                for (int i = 0; i < server.Clients.Count; i++) {
+                    CUser user = (CUser)server.Clients[i];
+                    if (user.Room.Name != room.Name)
+                        continue;
+
+                    AddUser(user);
+                }
+            } else if (state == ClientState_e.Client) {
+                for (int i = 0; i < client.Users.Count; i++) {
+                    COfflineUser user = client.Users[i];
+                    if (user.Room.Name != room.Name)
+                        continue;
+
+                    AddUser(user);
+                }
+            }
+        }
+
         private void AddUser(COfflineUser user) {
             ListViewItem j = new ListViewItem();
             j.Text = user.Username;
             j.SubItems.Add(user.Rank.Name);
+            j.SubItems.Add(user.Room.DisplayName);
             j.SubItems[0].ForeColor = user.Rank.Colour;
             j.Tag = user;
 
@@ -61,6 +95,7 @@ namespace ChatRat.UI.Panels {
             ListViewItem j = new ListViewItem();
             j.Text = user.Username;
             j.SubItems.Add(user.Rank.Name);
+            j.SubItems.Add(user.Room.DisplayName);
             j.SubItems[0].ForeColor = user.Rank.Colour;
             j.Tag = user;
 
@@ -68,12 +103,20 @@ namespace ChatRat.UI.Panels {
         }
 
         private void ComboType_SelectedIndexChanged(object sender, EventArgs e) {
-            lstUsers.Items.Clear();
+            SelectOption();
+        }
 
+        private void SelectOption() {
             SelectionType_e type = (SelectionType_e)comboType.SelectedIndex;
+            currentOption = (int)type;
+
             switch (type) {
                 case SelectionType_e.All:
                     LoadAllUsers();
+                    break;
+
+                case SelectionType_e.CurrentRoom:
+                    LoadCurrentRoomUsers();
                     break;
             }
         }

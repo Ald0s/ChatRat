@@ -77,6 +77,7 @@
     <Compile Include="Network\Messages\msg_LostUser.cs" />
     <Compile Include="Network\Messages\msg_NewUser.cs" />
     <Compile Include="Network\Messages\msg_ServerInfo.cs" />
+    <Compile Include="Network\Messages\msg_UpdateUser.cs" />
     <Compile Include="Network\Server\CServer.cs" />
     <Compile Include="Network\Server\CUser.cs" />
     <Compile Include="Program.cs" />

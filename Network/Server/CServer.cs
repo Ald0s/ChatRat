@@ -40,8 +40,8 @@ namespace ChatRat.Network.Server {
         public event RoomRemoved_Delegate RoomRemoved;
         //
 
-        public delegate void UsersUpdated_Delegate();
-        public event UsersUpdated_Delegate UsersUpdated;
+        public delegate void FireUIUpdate_Delegate();
+        public event FireUIUpdate_Delegate UIUpdate;
 
         private string sUsername;
 
@@ -105,6 +105,13 @@ namespace ChatRat.Network.Server {
             // Call UserConnected() with custom type INSTEAD of base.
             CUser user = new CUser(main, client);
 
+            // ERROR CASE
+            // Issues may occur here, as I've called UserConnected before subscribing custom event handlers.
+            // I've done this, because in the case I don't, the event handler for our custom type is called first, THEN
+            // the servers. This means that when a user disconnects, the user interface will be updated with the disconnected user
+            // STILL IN the connected users list.
+            base.UserConnected(user);
+
             user.Authenticated += User_Authenticated;
             user.NetMessageReceived += NetMessageReceived_Public;
             user.Disconnected += User_Disconnected;
@@ -114,8 +121,6 @@ namespace ChatRat.Network.Server {
             if (user.IsLocalhost) {
                 user.BeginLocalhost(sUsername);
             }
-
-            base.UserConnected(user);
         }
 
         private void User_Authenticated(CServerClient client) {
@@ -129,13 +134,18 @@ namespace ChatRat.Network.Server {
                     }
                 }
             } else {
-                user.SendNetMessage(new msg_ServerInfo(rooms.Rooms));
+                user.SendNetMessage(new msg_ServerInfo(Clients, rooms.Rooms));
             }
 
 
             // Make other clients aware of this new user.
             beautiful.UserJoined(user.Username, user.Rank);
             Broadcast(new msg_NewUser(user));
+
+            if (!user.IsLocalhost && UIUpdate != null) {
+                // Update our serverside user interface.
+                UIUpdate();
+            }
         }
 
         private void NetMessageReceived_Public(CServerClient client, CNetMessage message) {
@@ -167,6 +177,9 @@ namespace ChatRat.Network.Server {
                     break;
 
                 case "changeroom_result":
+                    beautiful.RoomChangeResult(
+                        ((msg_ChangeRoomResult)message).ReadRoom(),
+                        ((msg_ChangeRoomResult)message).ReadBool());
                     break;
             }
         }
@@ -177,6 +190,11 @@ namespace ChatRat.Network.Server {
             // Tell all clients this one has disconnected.
             beautiful.UserLeft(user.Username, user.Rank);
             Broadcast(new msg_LostUser(user));
+
+            if (UIUpdate != null) {
+                // Update our serverside user interface.
+                UIUpdate();
+            }
         }
 
         private void RawMessageReceived(CUser client, msg_CreateMessage message) {
@@ -200,7 +218,14 @@ namespace ChatRat.Network.Server {
             if (client.Room != null && client.Room.Name == room.Name)
                 return;
 
-            rooms.MoveToRoom(client, room.Name);
+            if (rooms.MoveToRoom(client, room.Name)) {
+                Broadcast(new msg_UpdateUser(client, 1, client.Room, null));
+
+                if (UIUpdate != null) {
+                    // Update our serverside user interface.
+                    UIUpdate();
+                }
+            }
         }
 
         private void HandleRoomLoopback(msg_AddRemoveRoom addrem) {

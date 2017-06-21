@@ -41,7 +41,7 @@ namespace ChatRat.Elements {
             if(success)
                 WriteTexts(
                     new string[] { "We successfully moved you to '", room.DisplayName, "'" },
-                    new Color[] { defaultColour, Color.BlanchedAlmond, defaultColour
+                    new Color[] { defaultColour, Color.DarkTurquoise, defaultColour
                     });
             else
                 WriteTexts(
@@ -64,11 +64,15 @@ namespace ChatRat.Elements {
                 });
         }
 
-        public void ProcessJoinLeave(msg_JoinLeave joinleave) {
-            COfflineUser user = joinleave.ReadUser();
-            CRoom subject = joinleave.ReadRoom();
-            bool join_or_leave = joinleave.ReadBool();
+        public void ProcessJoinLeave(msg_JoinLeave message) {
+            COfflineUser user = message.ReadUser();
+            CRoom room = message.ReadRoom();
+            bool join_or_leave = message.ReadBool();
 
+            ProcessJoinLeave(user, room, join_or_leave);
+        }
+
+        public void ProcessJoinLeave(COfflineUser user, CRoom subject, bool join_or_leave) {
             if (join_or_leave)
                 UserJoinRoom(user, subject);
             else
