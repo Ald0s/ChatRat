@@ -174,12 +174,6 @@
     <None Include="Resources\wrench.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\ZapNetwork\ZapNetwork\ZapNetwork.csproj">
-      <Project>{b26a171a-2ce3-4d2c-bc48-2614b5fefb08}</Project>
-      <Name>ZapNetwork</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\television.png" />
   </ItemGroup>
   <ItemGroup>
@@ -190,6 +184,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\comment.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\GitHub\ZapNetwork\ZapNetwork\ZapNetwork.csproj">
+      <Project>{b26a171a-2ce3-4d2c-bc48-2614b5fefb08}</Project>
+      <Name>ZapNetwork</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

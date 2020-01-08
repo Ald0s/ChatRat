@@ -65,7 +65,7 @@ namespace ChatRat.UI.Panels {
             if(!int.TryParse(txtListenPort.Text, out iListenPort) || !int.TryParse(txtMaxUsers.Text, out iMaxUsers))
                 return "Invalid listen port or max users! Please make sure both of these are numbers! (Port must be within 1 and 65535)";
 
-            ServerCfg cfg = new ServerCfg(txtServerName.Text, txtDescription.Text, (checkUsePassword.Checked) ? txtPassword.Text : null,iListenPort, 677, iMaxUsers);
+            ServerCfg cfg = new ServerCfg(txtServerName.Text, txtDescription.Text, (checkUsePassword.Checked) ? txtPassword.Text : null, iListenPort, 677, iMaxUsers, false);
 
             server.SetInfo(txtUsername.Text);
             server.StartServer(cfg);
