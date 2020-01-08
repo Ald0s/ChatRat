@@ -94,7 +94,7 @@ namespace ChatRat.Network.Server {
             
             // We'll accomplish this by using null for both arguments in CUser,
             // which lets CUser know that class will be a localhost.
-            NewClient(null, null);
+            NewClient(this, null);
         }
 
         private void CServer_ServerStopped(string reason) {

@@ -37,8 +37,8 @@ namespace ChatRat.Network.Server {
         private string sUsername;
 
         public CUser(CServerMain _main, TcpClient _client)
-            :base(_main, _client) {
-            if(_main == null && _client == null) {
+            : base(_main, _client) {
+            if(_client == null) {
                 // Verify we never really use main in a localhost class.
                 // It should only be used for disconnections - which by definition doesn't apply to localhost.
 
